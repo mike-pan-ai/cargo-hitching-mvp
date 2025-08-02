@@ -154,11 +154,11 @@ export default function Login() {
             <p className="text-xs text-gray-500">
               {rememberMe ? (
                 <>
-                  <span className="text-green-600">✓</span> You'll stay logged in for 30 days on this device
+                  <span className="text-green-600">✓</span> You&apos;ll stay logged in for 30 days on this device
                 </>
               ) : (
                 <>
-                  <span className="text-yellow-600">⚠</span> You'll need to log in again when you close your browser
+                  <span className="text-yellow-600">⚠</span> You&apos;ll need to log in again when you close your browser
                 </>
               )}
             </p>
