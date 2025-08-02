@@ -1,6 +1,7 @@
 // contexts/AuthContext.js
 import { createContext, useContext, useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
+import API_BASE_URL from '../utils/api';
 
 const AuthContext = createContext();
 
@@ -37,7 +38,7 @@ export const AuthProvider = ({ children }) => {
       const activeToken = token || rememberToken;
 
       // Verify token with backend
-      const response = await fetch('http://localhost:5000/api/auth/verify-token', {
+      const response = await fetch(`${API_BASE_URL}/api/auth/verify-token`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -68,7 +69,7 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (email, password, rememberMe = false) => {
     try {
-      const response = await fetch('http://localhost:5000/api/auth/login', {
+      const response = await fetch(`${API_BASE_URL}/api/auth/login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -183,7 +184,7 @@ export const AuthProvider = ({ children }) => {
     }
 
     try {
-      const response = await fetch('http://localhost:5000/api/auth/refresh-token', {
+      const response = await fetch(`${API_BASE_URL}/api/auth/refresh-token`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
