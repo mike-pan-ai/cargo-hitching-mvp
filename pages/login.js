@@ -63,7 +63,7 @@ export default function Login() {
           <h1 className="text-3xl font-bold text-gray-900">🚚 Cargo Hitching</h1>
           <h2 className="mt-6 text-2xl font-semibold text-gray-700">Sign in to your account</h2>
           <p className="mt-2 text-sm text-gray-600">
-            Don't have an account?{' '}
+            Don&apos;t have an account?{' '}
             <Link href="/register" className="font-medium text-blue-600 hover:text-blue-500">
               Create one here
             </Link>
