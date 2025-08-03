@@ -57,11 +57,24 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-600 to-purple-700">
-      <div className="max-w-md w-full space-y-8 p-8 bg-white rounded-xl shadow-2xl">
-        <div className="text-center">
-          <h1 className="text-3xl font-bold text-gray-900">🚚 Cargo Hitching</h1>
-          <h2 className="mt-6 text-2xl font-semibold text-gray-700">Sign in to your account</h2>
+  <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+    {/* Logo outside the box */}
+    <div className="sm:mx-auto sm:w-full sm:max-w-md mb-8">
+  <div className="flex justify-center">
+    <div className="text-3xl font-bold text-gray-900 flex items-center">
+      <span className="mr-2">🚚</span>
+      CargoHitch
+    </div>
+  </div>
+</div>
+
+<div className="sm:mx-auto sm:w-full sm:max-w-md">
+  <div className="bg-white py-8 px-6 border border-gray-200 rounded-lg sm:px-10">
+    <div className="text-center">
+      <h2 className="text-2xl font-bold text-gray-900">Sign in to your account</h2>
+      <p className="mt-2 text-center text-sm text-gray-600">
+        Enter your email and password to access your dashboard
+      </p>
           <p className="mt-2 text-sm text-gray-600">
             Don&apos;t have an account?{' '}
             <Link href="/register" className="font-medium text-blue-600 hover:text-blue-500">
@@ -137,7 +150,7 @@ export default function Login() {
             <button
               type="submit"
               disabled={loading}
-              className="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              className="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-black hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             >
               {loading ? (
                 <>
@@ -166,5 +179,6 @@ export default function Login() {
         </form>
       </div>
     </div>
+  </div>
   );
 }
