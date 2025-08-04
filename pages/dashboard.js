@@ -26,7 +26,13 @@ export default function Dashboard() {
 
     try {
       // Load user trips using authenticated fetch
-      const tripsResponse = await authenticatedFetch(`${API_BASE_URL}/api/trips/my-trips`);
+      const token = localStorage.getItem('token');
+      const tripsResponse = await fetch(`${API_BASE_URL}/api/trips/my-trips`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
 
       if (tripsResponse && tripsResponse.ok) {
         const tripsData = await tripsResponse.json();
@@ -37,11 +43,15 @@ export default function Dashboard() {
       }
 
       // Load user stats using authenticated fetch
-      const statsResponse = await authenticatedFetch(`${API_BASE_URL}/api/trips/stats`);
-
+      const statsResponse = await fetch(`${API_BASE_URL}/api/trips/stats`, {
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+        }
+      });
       if (statsResponse && statsResponse.ok) {
         const statsData = await statsResponse.json();
-        setStats(statsData.stats);
+        setStats(statsData);
       }
 
     } catch (err) {
@@ -226,8 +236,8 @@ export default function Dashboard() {
           </div>
           <div className="p-6 pt-0">
             <div className="space-y-4">
-              {trips.slice(0, 3).map((trip, index) => (
-                <div key={trip._id} className="flex items-center space-x-4">
+              {trips.slice(0, 3).map((trip) => (
+                <div key={`recent-${trip._id}`} className="flex items-center space-x-4">
                   <div className={`w-2 h-2 rounded-full ${
                     trip.status === 'completed' ? 'bg-green-500' :
                     trip.status === 'active' ? 'bg-blue-500' : 'bg-yellow-500'
@@ -298,7 +308,7 @@ export default function Dashboard() {
             ) : (
               <div className="space-y-4">
                 {trips.map((trip) => (
-                  <div key={trip._id} className="border rounded-lg p-4 hover:bg-gray-50 transition-colors">
+                  <div key={`trip-${trip._id}`} className="border rounded-lg p-4 hover:bg-gray-50 transition-colors">
                     <div className="flex justify-between items-start">
                       <div className="flex-1">
                         <div className="flex items-center space-x-3 mb-3">
