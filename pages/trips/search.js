@@ -208,7 +208,7 @@ export default function SearchTrips() {
       const data = await response.json();
 
       if (response.ok) {
-        let searchResults = data.trips || [];
+        let searchResults = data || [];
 
         // Filter out current user's trips if user is logged in
         if (user && user._id) {
