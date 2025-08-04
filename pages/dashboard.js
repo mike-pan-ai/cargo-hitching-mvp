@@ -307,7 +307,7 @@ export default function Dashboard() {
               </div>
             ) : (
               <div className="space-y-4">
-              {trips.length > 0 && console.log('Debug trip object:', Object.keys(trips[0]), trips[0])}
+              {trips.length > 0}
                 {trips.map((trip) => (
                   <div key={`trip-${trip.id}`} className="border rounded-lg p-4 hover:bg-gray-50 transition-colors">
                     <div className="flex justify-between items-start">

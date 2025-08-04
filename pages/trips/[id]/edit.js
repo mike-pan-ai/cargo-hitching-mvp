@@ -388,8 +388,8 @@ export default function EditTrip() {
   const convertDisplayDateToBackend = (displayDate) => {
   if (!displayDate) return '';
   const [day, month, year] = displayDate.split('/');
-  // Convert to YYYY-MM-DD format to match what your backend expects
-  return `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
+  // Convert to DDMMYYYY format as backend expects
+  return `${day.padStart(2, '0')}${month.padStart(2, '0')}${year}`;
 };
 
   const loadTrip = async () => {
@@ -478,18 +478,33 @@ const handleDateChange = (e) => {
     if (!formData.date) {
   setError('Please select a departure date');
   return false;
-    }
+}
 
-    // Validate date is not in the past (optional for edit, but good UX)
-    const [day, month, year] = formData.date.split('/');
-    const selectedDate = new Date(year, month - 1, day);
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
+// Validate date format and is not in the past
+try {
+  const [day, month, year] = formData.date.split('/');
+  if (!day || !month || !year || day.length !== 2 || month.length !== 2 || year.length !== 4) {
+    setError('Invalid date format. Please use DD/MM/YYYY');
+    return false;
+  }
 
-    if (selectedDate < today) {
-      setError('Departure date cannot be in the past');
-      return false;
-    }
+  const selectedDate = new Date(year, month - 1, day);
+  if (isNaN(selectedDate.getTime())) {
+    setError('Invalid date selected');
+    return false;
+  }
+
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  if (selectedDate < today) {
+    setError('Departure date cannot be in the past');
+    return false;
+  }
+} catch (err) {
+  setError('Invalid date format');
+  return false;
+}
 
     return true;
   };
@@ -499,6 +514,20 @@ const handleDateChange = (e) => {
     setError('');
     setSuccess('');
 
+    console.log('Sending date to backend:', formData.date);
+    console.log('Converted date:', formData.date ? convertDisplayDateToBackend(formData.date) : '');
+    console.log('Full request body:', JSON.stringify({
+    country_from: formData.country_from,
+    country_to: formData.country_to,
+    date: formData.date ? convertDisplayDateToBackend(formData.date) : '',
+    rate_per_kg: parseFloat(formData.rate_per_kg),
+    available_cargo_space: parseFloat(formData.available_cargo_space),
+    currency: formData.currency,
+    description: formData.description,
+    contact_info: formData.contact_info,
+    status: formData.status
+    }, null, 2));
+
     if (!validateForm()) {
       return;
     }
@@ -506,37 +535,64 @@ const handleDateChange = (e) => {
     setUpdateLoading(true);
 
     try {
-      const token = localStorage.getItem('token');
-      const response = await fetch(`${API_BASE_URL}/api/trips/${id}/update`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({
-          ...formData,
-          date: formData.date ? convertDisplayDateToBackend(formData.date) : '',
-          rate_per_kg: parseFloat(formData.rate_per_kg),
-          available_cargo_space: parseFloat(formData.available_cargo_space)
-        }),
-      });
+  const token = localStorage.getItem('token');
 
-      const data = await response.json();
+  const requestBody = {
+    country_from: formData.country_from,
+    country_to: formData.country_to,
+    date: formData.date ? convertDisplayDateToBackend(formData.date) : '',
+    rate_per_kg: parseFloat(formData.rate_per_kg),
+    available_cargo_space: parseFloat(formData.available_cargo_space),
+    currency: formData.currency,
+    description: formData.description,
+    contact_info: formData.contact_info,
+    status: formData.status
+  };
 
-      if (response.ok) {
-        setSuccess('Trip updated successfully!');
-        // Optionally redirect back to dashboard after 2 seconds
-        setTimeout(() => {
-          router.push('/dashboard');
-        }, 2000);
-      } else {
-        setError(data.error || 'Failed to update trip');
-      }
-    } catch (err) {
-      setError('Network error. Make sure your Flask backend is running.');
-    } finally {
-      setUpdateLoading(false);
+  console.log('Making request to:', `${API_BASE_URL}/api/trips/${id}/update`);
+  console.log('Request body:', JSON.stringify(requestBody, null, 2));
+
+  const response = await fetch(`${API_BASE_URL}/api/trips/${id}/update`, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`
+    },
+    body: JSON.stringify(requestBody),
+  });
+
+  console.log('Response status:', response.status);
+  console.log('Response headers:', response.headers);
+
+  if (response.ok) {
+    const data = await response.json();
+    console.log('Success response:', data);
+    setSuccess('Trip updated successfully!');
+    setTimeout(() => {
+      router.push('/dashboard');
+    }, 2000);
+  } else {
+    // Try to get error details
+    const responseText = await response.text();
+    console.log('Error response text:', responseText);
+
+    let errorData;
+    try {
+      errorData = JSON.parse(responseText);
+      console.log('Parsed error data:', errorData);
+    } catch (parseError) {
+      console.log('Could not parse error as JSON');
+      errorData = { error: responseText || 'Unknown error occurred' };
     }
+
+    setError(errorData.error || errorData.message || `Server error (${response.status})`);
+  }
+} catch (err) {
+  console.error('Network or request error:', err);
+  setError('Network error. Make sure your backend is running.');
+} finally {
+  setUpdateLoading(false);
+}
   };
 
   const handleDelete = async () => {
@@ -547,26 +603,64 @@ const handleDateChange = (e) => {
     setUpdateLoading(true);
 
     try {
-      const token = localStorage.getItem('token');
-      const response = await fetch(`${API_BASE_URL}/api/trips/${id}/delete`, {
-        method: 'DELETE',
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
+  const token = localStorage.getItem('token');
 
-      if (response.ok) {
-        alert('Trip deleted successfully!');
-        router.push('/dashboard');
-      } else {
-        const data = await response.json();
-        setError(data.error || 'Failed to delete trip');
-      }
-    } catch (err) {
-      setError('Network error while deleting trip');
-    } finally {
-      setUpdateLoading(false);
+  const requestBody = {
+    country_from: formData.country_from,
+    country_to: formData.country_to,
+    date: formData.date ? convertDisplayDateToBackend(formData.date) : '',
+    rate_per_kg: parseFloat(formData.rate_per_kg),
+    available_cargo_space: parseFloat(formData.available_cargo_space),
+    currency: formData.currency,
+    description: formData.description,
+    contact_info: formData.contact_info,
+    status: formData.status
+  };
+
+  console.log('Making request to:', `${API_BASE_URL}/api/trips/${id}/update`);
+  console.log('Request body:', JSON.stringify(requestBody, null, 2));
+
+  const response = await fetch(`${API_BASE_URL}/api/trips/${id}/update`, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`
+    },
+    body: JSON.stringify(requestBody),
+  });
+
+  console.log('Response status:', response.status);
+  console.log('Response headers:', response.headers);
+
+  if (response.ok) {
+    const data = await response.json();
+    console.log('Success response:', data);
+    setSuccess('Trip updated successfully!');
+    setTimeout(() => {
+      router.push('/dashboard');
+    }, 2000);
+  } else {
+    // Try to get error details
+    const responseText = await response.text();
+    console.log('Error response text:', responseText);
+
+    let errorData;
+    try {
+      errorData = JSON.parse(responseText);
+      console.log('Parsed error data:', errorData);
+    } catch (parseError) {
+      console.log('Could not parse error as JSON');
+      errorData = { error: responseText || 'Unknown error occurred' };
     }
+
+    setError(errorData.error || errorData.message || `Server error (${response.status})`);
+  }
+} catch (err) {
+  console.error('Network or request error:', err);
+  setError('Network error. Make sure your backend is running.');
+} finally {
+  setUpdateLoading(false);
+}
   };
 
   if (loading) {
