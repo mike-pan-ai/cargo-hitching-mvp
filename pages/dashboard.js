@@ -71,13 +71,13 @@ export default function Dashboard() {
     setError('');
 
     try {
-      const response = await authenticatedFetch(`API_BASE_URL/api/trips/${tripId}/delete`, {
+      const response = await authenticatedFetch(`${API_BASE_URL}/api/trips/${tripId}/delete`, {
         method: 'DELETE'
       });
 
       if (response && response.ok) {
         // Remove trip from local state
-        setTrips(trips.filter(trip => trip._id !== tripId));
+        setTrips(trips.filter(trip => trip.id !== tripId));
         // Reload data to update stats
         loadUserData();
       } else if (response) {
@@ -237,7 +237,7 @@ export default function Dashboard() {
           <div className="p-6 pt-0">
             <div className="space-y-4">
               {trips.slice(0, 3).map((trip) => (
-                <div key={`recent-${trip._id}`} className="flex items-center space-x-4">
+                <div key={`recent-${trip.id}`} className="flex items-center space-x-4">
                   <div className={`w-2 h-2 rounded-full ${
                     trip.status === 'completed' ? 'bg-green-500' :
                     trip.status === 'active' ? 'bg-blue-500' : 'bg-yellow-500'
@@ -307,8 +307,9 @@ export default function Dashboard() {
               </div>
             ) : (
               <div className="space-y-4">
+              {trips.length > 0 && console.log('Debug trip object:', Object.keys(trips[0]), trips[0])}
                 {trips.map((trip) => (
-                  <div key={`trip-${trip._id}`} className="border rounded-lg p-4 hover:bg-gray-50 transition-colors">
+                  <div key={`trip-${trip.id}`} className="border rounded-lg p-4 hover:bg-gray-50 transition-colors">
                     <div className="flex justify-between items-start">
                       <div className="flex-1">
                         <div className="flex items-center space-x-3 mb-3">
@@ -354,7 +355,7 @@ export default function Dashboard() {
                       </div>
 
                       <div className="ml-6 flex space-x-2">
-                        <Link href={`/trips/${trip._id}/edit`}>
+                        <Link href={`/trips/${trip.id}/edit`}>
                           <button className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium transition-colors border border-yellow-300 bg-yellow-50 hover:bg-yellow-100 text-yellow-800 h-9 px-3">
                             <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
@@ -363,11 +364,11 @@ export default function Dashboard() {
                           </button>
                         </Link>
                         <button
-                          onClick={() => handleDeleteTrip(trip._id)}
-                          disabled={deleteLoading === trip._id}
+                          onClick={() => handleDeleteTrip(trip.id)}
+                          disabled={deleteLoading === trip.id}
                           className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium transition-colors border border-red-300 bg-red-50 hover:bg-red-100 text-red-800 h-9 px-3 disabled:opacity-50"
                         >
-                          {deleteLoading === trip._id ? (
+                          {deleteLoading === trip.id ? (
                             <>
                               <div className="animate-spin rounded-full h-4 w-4 border-2 border-red-600 border-t-transparent mr-1"></div>
                               Deleting...

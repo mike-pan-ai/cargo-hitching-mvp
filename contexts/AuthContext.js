@@ -25,47 +25,21 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   const checkAuthStatus = async () => {
-    try {
-      const token = localStorage.getItem('token');
-      const rememberToken = localStorage.getItem('rememberToken');
+  try {
+    const token = localStorage.getItem('token');
+    const user = localStorage.getItem('user');
 
-      if (!token && !rememberToken) {
-        setLoading(false);
-        return;
-      }
-
-      // Use remember token if regular token doesn't exist
-      const activeToken = token || rememberToken;
-
-      // Verify token with backend
-      const response = await fetch(`${API_BASE_URL}/api/auth/verify-token`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${activeToken}`
-        }
-      });
-
-      if (response.ok) {
-        const userData = await response.json();
-        setUser(userData.user);
-        setIsAuthenticated(true);
-
-        // If using remember token, refresh the regular token
-        if (!token && rememberToken) {
-          localStorage.setItem('token', activeToken);
-        }
-      } else {
-        // Token is invalid, clear storage
-        clearAuthData();
-      }
-    } catch (error) {
-      console.error('Auth check failed:', error);
-      clearAuthData();
-    } finally {
-      setLoading(false);
+    if (token && user) {
+      setUser(JSON.parse(user));
+      setIsAuthenticated(true);
     }
-  };
+  } catch (error) {
+    console.error('Auth check failed:', error);
+    clearAuthData();
+  } finally {
+    setLoading(false);
+  }
+};
 
   const login = async (email, password, rememberMe = false) => {
     try {

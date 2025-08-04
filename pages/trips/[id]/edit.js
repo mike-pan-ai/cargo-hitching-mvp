@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
+import API_BASE_URL from '../../../utils/api';
 
 export default function EditTrip() {
   const [trip, setTrip] = useState(null);
@@ -37,7 +38,7 @@ export default function EditTrip() {
     }
 
     try {
-      const response = await fetch(`http://localhost:5000/api/trips/${id}`, {
+      const response = await fetch(`${API_BASE_URL}/api/trips/${id}`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -123,7 +124,7 @@ export default function EditTrip() {
 
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch(`http://localhost:5000/api/trips/${id}/update`, {
+      const response = await fetch(`${API_BASE_URL}/api/trips/${id}/update`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -163,7 +164,7 @@ export default function EditTrip() {
 
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch(`http://localhost:5000/api/trips/${id}/delete`, {
+      const response = await fetch(`${API_BASE_URL}/api/trips/${id}/delete`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`
