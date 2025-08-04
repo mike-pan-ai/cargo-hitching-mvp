@@ -1,5 +1,4 @@
 // pages/trips/create.js
-
 import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';

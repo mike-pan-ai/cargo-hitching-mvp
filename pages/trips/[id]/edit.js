@@ -1,7 +1,339 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
 import API_BASE_URL from '../../../utils/api';
+
+const COUNTRIES = [
+  'Taiwan', 'Germany', 'France', 'Italy', 'Spain', 'Netherlands', 'Belgium', 'Austria',
+  'Switzerland', 'Portugal', 'Poland', 'Czech Republic', 'Hungary', 'Slovakia',
+  'Slovenia', 'Croatia', 'Greece', 'Denmark', 'Sweden', 'Norway', 'Finland',
+  'Estonia', 'Latvia', 'Lithuania', 'Ireland', 'Luxembourg', 'United Kingdom',
+  'Iceland', 'Malta', 'Cyprus', 'Turkey', 'Montenegro', 'Monaco', 'Andorra', 'Liechtenstein'
+];
+
+// Google Calendar-style DatePicker Component
+const DatePicker = ({ value, onChange, disabled, minDate }) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const [currentMonth, setCurrentMonth] = useState(new Date());
+  const [selectedDate, setSelectedDate] = useState(null);
+  const datePickerRef = useRef(null);
+
+  const months = [
+    'January', 'February', 'March', 'April', 'May', 'June',
+    'July', 'August', 'September', 'October', 'November', 'December'
+  ];
+
+  const weekDays = ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'];
+
+  // Parse the DD/MM/YYYY value
+  useEffect(() => {
+    if (value) {
+      const [day, month, year] = value.split('/').map(Number);
+      setSelectedDate(new Date(year, month - 1, day));
+      setCurrentMonth(new Date(year, month - 1, 1));
+    }
+  }, [value]);
+
+  // Close calendar when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (datePickerRef.current && !datePickerRef.current.contains(event.target)) {
+        setIsOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  // Get days in month
+  const getDaysInMonth = (date) => {
+    const year = date.getFullYear();
+    const month = date.getMonth();
+    const firstDay = new Date(year, month, 1);
+    const lastDay = new Date(year, month + 1, 0);
+    const daysInMonth = lastDay.getDate();
+    const startingDayOfWeek = firstDay.getDay();
+
+    const days = [];
+
+    // Add empty cells for days before the first day of the month
+    for (let i = 0; i < startingDayOfWeek; i++) {
+      days.push(null);
+    }
+
+    // Add all days of the month
+    for (let day = 1; day <= daysInMonth; day++) {
+      days.push(new Date(year, month, day));
+    }
+
+    return days;
+  };
+
+  const handleDateSelect = (date) => {
+    if (!date || isDateDisabled(date)) return;
+
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const year = date.getFullYear();
+
+    const formattedDate = `${day}/${month}/${year}`;
+    onChange({ target: { value: formattedDate } });
+    setSelectedDate(date);
+    setIsOpen(false);
+  };
+
+  const isDateDisabled = (date) => {
+    if (!minDate || !date) return false;
+    const min = new Date(minDate);
+    min.setHours(0, 0, 0, 0);
+    const checkDate = new Date(date);
+    checkDate.setHours(0, 0, 0, 0);
+    return checkDate < min;
+  };
+
+  const isToday = (date) => {
+    if (!date) return false;
+    const today = new Date();
+    return date.toDateString() === today.toDateString();
+  };
+
+  const isSelected = (date) => {
+    if (!date || !selectedDate) return false;
+    return date.toDateString() === selectedDate.toDateString();
+  };
+
+  const navigateMonth = (direction) => {
+    setCurrentMonth(prev => {
+      const newDate = new Date(prev);
+      newDate.setMonth(prev.getMonth() + direction);
+      return newDate;
+    });
+  };
+
+  const goToToday = () => {
+    const today = new Date();
+    setCurrentMonth(new Date(today.getFullYear(), today.getMonth(), 1));
+  };
+
+  const formatDisplayValue = () => {
+    if (!value) return '';
+    return value; // Already in DD/MM/YYYY format
+  };
+
+  return (
+    <div className="relative" ref={datePickerRef}>
+      {/* Input Field */}
+      <div className="relative">
+        <input
+          type="text"
+          value={formatDisplayValue()}
+          onClick={() => !disabled && setIsOpen(!isOpen)}
+          placeholder="DD/MM/YYYY"
+          readOnly
+          disabled={disabled}
+          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 cursor-pointer pr-10"
+        />
+        <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+          <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+          </svg>
+        </div>
+      </div>
+
+      {/* Calendar Popup */}
+      {isOpen && (
+        <div className="absolute z-50 mt-1 bg-white border border-gray-200 rounded-lg shadow-lg p-4 w-80">
+          {/* Calendar Header */}
+          <div className="flex items-center justify-between mb-4">
+            <button
+              type="button"
+              onClick={() => navigateMonth(-1)}
+              className="p-1 hover:bg-gray-100 rounded-md transition-colors"
+            >
+              <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+              </svg>
+            </button>
+
+            <div className="flex items-center space-x-2">
+              <h3 className="text-lg font-semibold text-gray-900">
+                {months[currentMonth.getMonth()]} {currentMonth.getFullYear()}
+              </h3>
+              <button
+                type="button"
+                onClick={goToToday}
+                className="text-xs px-2 py-1 bg-blue-100 text-blue-700 rounded hover:bg-blue-200 transition-colors"
+              >
+                Today
+              </button>
+            </div>
+
+            <button
+              type="button"
+              onClick={() => navigateMonth(1)}
+              className="p-1 hover:bg-gray-100 rounded-md transition-colors"
+            >
+              <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+              </svg>
+            </button>
+          </div>
+
+          {/* Week Days Header */}
+          <div className="grid grid-cols-7 gap-1 mb-2">
+            {weekDays.map(day => (
+              <div key={day} className="text-center text-xs font-medium text-gray-500 py-2">
+                {day}
+              </div>
+            ))}
+          </div>
+
+          {/* Calendar Days */}
+          <div className="grid grid-cols-7 gap-1">
+            {getDaysInMonth(currentMonth).map((date, index) => {
+              if (!date) {
+                return <div key={index} className="h-8"></div>;
+              }
+
+              const disabled = isDateDisabled(date);
+              const today = isToday(date);
+              const selected = isSelected(date);
+
+              return (
+                <button
+                  key={index}
+                  type="button"
+                  onClick={() => handleDateSelect(date)}
+                  disabled={disabled}
+                  className={`
+                    h-8 w-8 text-sm rounded-md transition-all duration-150 flex items-center justify-center
+                    ${disabled
+                      ? 'text-gray-300 cursor-not-allowed'
+                      : 'hover:bg-blue-100 cursor-pointer text-gray-700'
+                    }
+                    ${today && !selected ? 'bg-blue-50 text-blue-600 font-semibold' : ''}
+                    ${selected ? 'bg-blue-600 text-white font-semibold shadow-md' : ''}
+                  `}
+                >
+                  {date.getDate()}
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Calendar Footer */}
+          <div className="mt-4 pt-3 border-t border-gray-100 flex justify-between items-center">
+            <span className="text-xs text-gray-500">
+              {selectedDate ? `Selected: ${formatDisplayValue()}` : 'No date selected'}
+            </span>
+            <button
+              type="button"
+              onClick={() => setIsOpen(false)}
+              className="text-xs px-3 py-1 bg-gray-100 text-gray-700 rounded hover:bg-gray-200 transition-colors"
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
+// Custom Dropdown Component
+const CountryDropdown = ({ value, onChange, placeholder, disabled, excludeValue }) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
+  const dropdownRef = useRef(null);
+  const inputRef = useRef(null);
+
+  // Filter countries based on search term and exclude selected value from other dropdown
+  const filteredCountries = COUNTRIES.filter(country =>
+    country.toLowerCase().includes(searchTerm.toLowerCase()) &&
+    country !== excludeValue
+  );
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setIsOpen(false);
+        setSearchTerm('');
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  const handleSelect = (country) => {
+    onChange(country);
+    setIsOpen(false);
+    setSearchTerm('');
+  };
+
+  const handleInputChange = (e) => {
+    setSearchTerm(e.target.value);
+    if (!isOpen) setIsOpen(true);
+  };
+
+  const handleInputClick = () => {
+    setIsOpen(!isOpen);
+    if (inputRef.current) {
+      inputRef.current.focus();
+    }
+  };
+
+  return (
+    <div className="relative" ref={dropdownRef}>
+      <div className="relative">
+        <input
+          ref={inputRef}
+          type="text"
+          value={isOpen ? searchTerm : value}
+          onChange={handleInputChange}
+          onClick={handleInputClick}
+          placeholder={placeholder}
+          disabled={disabled}
+          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 pr-10 cursor-pointer"
+          autoComplete="off"
+        />
+        <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+          <svg
+            className={`w-4 h-4 text-gray-400 transition-transform ${isOpen ? 'rotate-180' : ''}`}
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+          </svg>
+        </div>
+      </div>
+
+      {isOpen && (
+        <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-auto">
+          {filteredCountries.length > 0 ? (
+            filteredCountries.map((country) => (
+              <div
+                key={country}
+                onClick={() => handleSelect(country)}
+                className={`px-3 py-2 cursor-pointer hover:bg-blue-50 transition-colors ${
+                  value === country ? 'bg-blue-100 text-blue-700' : 'text-gray-900'
+                }`}
+              >
+                {country}
+              </div>
+            ))
+          ) : (
+            <div className="px-3 py-2 text-gray-500">
+              {excludeValue ? `No countries found matching "${searchTerm}" (excluding selected destination)` : `No countries found matching "${searchTerm}"`}
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+};
 
 export default function EditTrip() {
   const [trip, setTrip] = useState(null);
@@ -30,6 +362,36 @@ export default function EditTrip() {
     }
   }, [id]);
 
+  const convertBackendDateToDisplay = (backendDate) => {
+  if (!backendDate) return '';
+
+  const dateStr = backendDate.toString();
+
+  // Handle YYYY-MM-DD format (ISO date format)
+  if (dateStr.includes('-') && dateStr.length === 10) {
+    const [year, month, day] = dateStr.split('-');
+    return `${day}/${month}/${year}`;
+  }
+
+  // Handle DDMMYYYY format (8 digits) - keep this for backward compatibility
+  if (dateStr.length === 8 && !dateStr.includes('-')) {
+    const day = dateStr.substring(0, 2);
+    const month = dateStr.substring(2, 4);
+    const year = dateStr.substring(4, 8);
+    return `${day}/${month}/${year}`;
+  }
+
+  console.log('Unexpected date format:', backendDate);
+  return '';
+};
+
+  const convertDisplayDateToBackend = (displayDate) => {
+  if (!displayDate) return '';
+  const [day, month, year] = displayDate.split('/');
+  // Convert to YYYY-MM-DD format to match what your backend expects
+  return `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
+};
+
   const loadTrip = async () => {
     const token = localStorage.getItem('token');
     if (!token) {
@@ -45,15 +407,13 @@ export default function EditTrip() {
       });
 
       if (response.ok) {
-        const data = await response.json();
-        const tripData = data.trip;
+        const tripData = await response.json();
         setTrip(tripData);
-
         // Populate form with existing trip data
         setFormData({
           country_from: tripData.country_from || '',
           country_to: tripData.country_to || '',
-          date: tripData.date || '',
+          date: tripData.date ? convertBackendDateToDisplay(tripData.date.toString()) : '',
           departure_time: tripData.departure_time || '',
           rate_per_kg: tripData.rate_per_kg || '',
           available_cargo_space: tripData.available_cargo_space || '',
@@ -73,11 +433,25 @@ export default function EditTrip() {
   };
 
   const handleInputChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value
-    });
-  };
+  setFormData({
+    ...formData,
+    [e.target.name]: e.target.value
+  });
+};
+
+const handleCountryChange = (field, value) => {
+  setFormData({
+    ...formData,
+    [field]: value
+  });
+};
+
+const handleDateChange = (e) => {
+  setFormData({
+    ...formData,
+    date: e.target.value // Already in DD/MM/YYYY format from DatePicker
+  });
+};
 
   const validateForm = () => {
     if (!formData.country_from || !formData.country_to || !formData.date ||
@@ -101,10 +475,19 @@ export default function EditTrip() {
       return false;
     }
 
-    // Validate date format (DDMMYYYY)
-    const dateRegex = /^\d{8}$/;
-    if (!dateRegex.test(formData.date)) {
-      setError('Date must be in DDMMYYYY format (e.g., 25122024)');
+    if (!formData.date) {
+  setError('Please select a departure date');
+  return false;
+    }
+
+    // Validate date is not in the past (optional for edit, but good UX)
+    const [day, month, year] = formData.date.split('/');
+    const selectedDate = new Date(year, month - 1, day);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    if (selectedDate < today) {
+      setError('Departure date cannot be in the past');
       return false;
     }
 
@@ -132,6 +515,7 @@ export default function EditTrip() {
         },
         body: JSON.stringify({
           ...formData,
+          date: formData.date ? convertDisplayDateToBackend(formData.date) : '',
           rate_per_kg: parseFloat(formData.rate_per_kg),
           available_cargo_space: parseFloat(formData.available_cargo_space)
         }),
@@ -254,53 +638,49 @@ export default function EditTrip() {
             <form onSubmit={handleSubmit} className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <label htmlFor="country_from" className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
                     From Country *
-                  </label>
-                  <input
-                    id="country_from"
-                    name="country_from"
-                    type="text"
-                    required
+                    </label>
+                  <CountryDropdown
                     value={formData.country_from}
-                    onChange={handleInputChange}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-yellow-500 text-gray-900"
-                    placeholder="e.g., Germany"
-                  />
+                    onChange={(value) => handleCountryChange('country_from', value)}
+                    placeholder="Select departure country"
+                    disabled={updateLoading}
+                    excludeValue={formData.country_to}
+                    />
+                    {formData.country_to && formData.country_from === formData.country_to && (
+                      <p className="text-red-500 text-xs mt-1">Cannot be the same as destination</p>
+                    )}
                 </div>
 
                 <div>
-                  <label htmlFor="country_to" className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
                     To Country *
-                  </label>
-                  <input
-                    id="country_to"
-                    name="country_to"
-                    type="text"
-                    required
-                    value={formData.country_to}
-                    onChange={handleInputChange}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-yellow-500 text-gray-900"
-                    placeholder="e.g., France"
-                  />
+                    </label>
+                  <CountryDropdown
+                      value={formData.country_to}
+                      onChange={(value) => handleCountryChange('country_to', value)}
+                      placeholder="Select destination country"
+                      disabled={updateLoading}
+                      excludeValue={formData.country_from}
+                    />
+                    {formData.country_from && formData.country_to === formData.country_from && (
+                      <p className="text-red-500 text-xs mt-1">Cannot be the same as departure</p>
+                    )}
                 </div>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <label htmlFor="date" className="block text-sm font-medium text-gray-700 mb-1">
-                    Date (DDMMYYYY) *
-                  </label>
-                  <input
-                    id="date"
-                    name="date"
-                    type="text"
-                    required
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Departure Date *
+                    </label>
+                  <DatePicker
                     value={formData.date}
-                    onChange={handleInputChange}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-yellow-500 text-gray-900"
-                    placeholder="25122024"
-                  />
+                    onChange={handleDateChange}
+                    disabled={updateLoading}
+                    minDate={new Date().toISOString().split('T')[0]}
+                    />
                 </div>
 
                 <div>
