@@ -203,19 +203,12 @@ export default function SearchTrips() {
         }
       });
 
-      // Use regular fetch since we'll filter on frontend
-      const response = await fetch(`${API_BASE_URL}/api/trips/search?${queryParams.toString()}`);
+      // Use authenticated fetch to exclude own trips on backend
+      const response = await authenticatedFetch(`${API_BASE_URL}/api/trips/search?${queryParams.toString()}`);
       const data = await response.json();
 
       if (response.ok) {
         let searchResults = data || [];
-
-        // Filter out current user's trips if user is logged in
-        if (user && user._id) {
-          searchResults = searchResults.filter(trip =>
-            trip.user_id !== user._id && trip.user_id !== user.id
-          );
-        }
 
         setTrips(searchResults);
       } else {

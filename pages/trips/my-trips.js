@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { useAuth } from '../../contexts/AuthContext';
 import ProtectedRoute from '../../components/ProtectedRoute';
 import API_BASE_URL from '../../utils/api';
+import { useRouter } from 'next/router';
 
 export default function MyTrips() {
   const { user, logout, authenticatedFetch } = useAuth();
@@ -12,12 +13,16 @@ export default function MyTrips() {
   const [error, setError] = useState('');
   const [deleteLoading, setDeleteLoading] = useState(null);
   const [filter, setFilter] = useState('all'); // all, active, completed, cancelled
+  const router = useRouter();
+
+  console.log('All trips:', trips);
+  console.log('Completed trips:', trips.filter(trip => trip.status === 'completed'));
 
   useEffect(() => {
     if (user) {
       loadTrips();
     }
-  }, [user]);
+  }, [user, router.asPath]);
 
   const loadTrips = async () => {
     setLoading(true);
