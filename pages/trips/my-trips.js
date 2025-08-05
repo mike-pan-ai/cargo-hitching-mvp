@@ -15,21 +15,24 @@ export default function MyTrips() {
   const [filter, setFilter] = useState('all'); // all, active, completed, cancelled
   const router = useRouter();
 
-  console.log('All trips:', trips);
-  console.log('Completed trips:', trips.filter(trip => trip.status === 'completed'));
-
   useEffect(() => {
     if (user) {
       loadTrips();
     }
-  }, [user, router.asPath]);
+  }, [user]);
 
   const loadTrips = async () => {
     setLoading(true);
     setError('');
 
     try {
-      const response = await authenticatedFetch(`${API_BASE_URL}/api/trips/my-trips`);
+      const token = localStorage.getItem('token');
+      const response = await fetch(`${API_BASE_URL}/api/trips/my-trips`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
 
       if (response && response.ok) {
         const data = await response.json();
