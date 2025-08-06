@@ -4,12 +4,10 @@ export default function Document() {
   return (
     <Html lang="en">
       <Head>
-        {/* Copy the HTML code from RealFaviconGenerator */}
-        <link rel="icon" type="image/png" href="/favicon-96x96.png" sizes="96x96" />
-        <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-        <link rel="shortcut icon" href="/favicon.ico" />
-        <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
-        <link rel="manifest" href="/site.webmanifest" />
+        <link rel="icon" type="image/png" href="/favicon-96x96.png" sizes="96x96" media="(prefers-color-scheme: light)" />
+        <link rel="icon" type="image/png" href="/favicon-96x96-dark.png" sizes="96x96" media="(prefers-color-scheme: dark)" />
+        <link rel="shortcut icon" href="/favicon-light.ico" media="(prefers-color-scheme: light)" />
+        <link rel="shortcut icon" href="/favicon-dark.ico" media="(prefers-color-scheme: dark)" />
       </Head>
       <body>
         <Main />
