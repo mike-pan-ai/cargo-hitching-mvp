@@ -14,8 +14,7 @@ export default function Home() {
             {/* Logo */}
             <div className="flex items-center">
               <div className="text-2xl font-bold text-gray-900 flex items-center">
-                <span className="mr-2">🚚</span>
-                CargoHitch
+                <span className="font-semibold text-lg text-gray-900 berlin-type-font text-xl">SeasonShip</span>
               </div>
             </div>
 
@@ -51,7 +50,7 @@ export default function Home() {
         <div className="text-center py-20">
           {/* Main Heading */}
           <h1 className="text-5xl md:text-6xl font-bold text-gray-900 mb-6">
-            Ship Smarter, Save More
+            Ship, & Save
           </h1>
 
           {/* Subtitle */}

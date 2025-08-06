@@ -738,7 +738,7 @@ function Sidebar({ activeSection, setActiveSection }) {
                 <path d="M3 4a1 1 0 00-1 1v1a1 1 0 001 1h1a1 1 0 001-1V5a1 1 0 00-1-1H3zM6 4a1 1 0 011-1h7a1 1 0 011 1v10a1 1 0 01-1 1H7a1 1 0 01-1-1V4z"/>
               </svg>
             </div>
-            <span className="font-semibold text-lg text-gray-900">CargoHitch</span>
+            <span className="font-semibold text-lg text-gray-900 berlin-type-font text-xl">SeasonShip</span>
           </div>
         </Link>
       </div>
@@ -832,13 +832,7 @@ const getActiveSection = () => {
       <header className="px-4 lg:px-6 h-14 flex items-center border-b border-gray-200 bg-white">
         {/* Left Side - Logo */}
         <Link href="/dashboard" className="flex items-center justify-center">
-          <div className="w-6 h-6 mr-2">
-            <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
-              <path d="M8 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM15 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0z"/>
-              <path d="M3 4a1 1 0 00-1 1v1a1 1 0 001 1h1a1 1 0 001-1V5a1 1 0 00-1-1H3zM6 4a1 1 0 011-1h7a1 1 0 011 1v10a1 1 0 01-1 1H7a1 1 0 01-1-1V4z"/>
-            </svg>
-          </div>
-          <span className="font-bold">CargoHitch</span>
+            <span className="font-bold berlin-type-font text-2xl">SeasonShip</span>
         </Link>
 
         {/* Right Side - Navigation */}

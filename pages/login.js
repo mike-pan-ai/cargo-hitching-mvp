@@ -62,8 +62,7 @@ export default function Login() {
     <div className="sm:mx-auto sm:w-full sm:max-w-md mb-8">
   <div className="flex justify-center">
     <div className="text-3xl font-bold text-gray-900 flex items-center">
-      <span className="mr-2">🚚</span>
-      CargoHitch
+      <span className="berlin-type-font text-3xl">SeasonShip</span>
     </div>
   </div>
 </div>
