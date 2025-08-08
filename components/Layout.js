@@ -213,7 +213,7 @@ useEffect(() => {
     <>
       {/* Chat Dropdown */}
       <div className="relative group">
-        <button className="p-2 text-gray-600 hover:text-gray-900 relative transition-colors">
+        <button className="p-2 text-gray-600 hover:text-gray-900 relative transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center">
           <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
           </svg>
@@ -300,10 +300,10 @@ useEffect(() => {
           />
 
           {/* Modal */}
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-            <div className="bg-white rounded-lg shadow-xl w-full max-w-4xl h-[600px] flex overflow-hidden">
-              {/* Conversations List */}
-              <div className="w-1/3 border-r border-gray-200 flex flex-col">
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4">
+            <div className="bg-white rounded-lg shadow-xl w-full h-full sm:h-[600px] sm:max-w-4xl flex overflow-hidden">
+          {/* Conversations List */}
+              <div className="hidden sm:flex w-1/3 border-r border-gray-200 flex-col">
                 <div className="p-4 border-b border-gray-200 flex items-center justify-between">
                   <h2 className="text-lg font-semibold">Messages</h2>
                 </div>
@@ -412,6 +412,7 @@ useEffect(() => {
                       placeholder="Type a message..."
                       className="flex-1 border border-gray-300 rounded-full px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                       disabled={sending}
+                      style={{ fontSize: '16px' }}
                       onKeyDown={(e) => {
                         if (e.key === 'Enter' && !e.shiftKey) {
                           e.preventDefault();
@@ -584,10 +585,10 @@ function NotificationDropdown({ user }) {
 
   return (
     <div className="relative group">
-      <button className="p-2 text-gray-600 hover:text-gray-900 relative transition-colors">
-        <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
-          <path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.9 2 2 2zm6-6v-5c0-3.07-1.64-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.63 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z"/>
-        </svg>
+      <button className="p-2 text-gray-600 hover:text-gray-900 relative transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center">
+          <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.9 2 2 2zm6-6v-5c0-3.07-1.64-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.63 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z"/>
+          </svg>
         {totalUnread > 0 && (
           <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-600 text-white text-xs rounded-full flex items-center justify-center">
             {totalUnread > 9 ? '9+' : totalUnread}
@@ -773,6 +774,7 @@ export default function Layout({ children }) {
   const { user, logout } = useAuth();
   const router = useRouter();
   const [activeSection, setActiveSection] = useState('overview');
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   // Pages that shouldn't show the sidebar
   const noSidebarPages = ['/login', '/register', '/'];
@@ -827,13 +829,32 @@ const getActiveSection = () => {
 };
 
   return (
-    <div className="flex flex-col min-h-screen">
+  <div className="flex flex-col min-h-screen">
+    {/* Mobile sidebar overlay */}
+    {sidebarOpen && (
+      <div
+        className="fixed inset-0 z-40 lg:hidden"
+        onClick={() => setSidebarOpen(false)}
+      >
+        <div className="fixed inset-0 bg-gray-600 bg-opacity-75"></div>
+      </div>
+    )}
       {/* Top Header Bar - Full Width */}
       <header className="px-4 lg:px-6 h-14 flex items-center border-b border-gray-200 bg-white">
-        {/* Left Side - Logo */}
-        <Link href="/dashboard" className="flex items-center justify-center">
-            <span className="font-bold berlin-type-font text-2xl">SeasonShip</span>
-        </Link>
+  {/* Mobile menu button */}
+  <button
+    onClick={() => setSidebarOpen(true)}
+    className="lg:hidden p-2 text-gray-600 hover:text-gray-900 mr-3"
+  >
+    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+    </svg>
+  </button>
+
+  {/* Logo */}
+  <Link href="/dashboard" className="flex items-center justify-center">
+    <span className="font-bold berlin-type-font text-xl sm:text-2xl">SeasonShip</span>
+  </Link>
 
         {/* Right Side - Navigation */}
         <nav className="ml-auto flex gap-4 sm:gap-6 items-center">
@@ -899,7 +920,23 @@ const getActiveSection = () => {
 
       <div className="flex flex-1">
         {/* Sidebar */}
-        <aside className="w-64 border-r border-gray-200 bg-gray-50 p-4">
+        <aside className={`
+  fixed inset-y-0 left-0 z-50 w-64 bg-gray-50 border-r border-gray-200 p-4 transform transition-transform duration-300 ease-in-out
+  lg:translate-x-0 lg:static lg:inset-0
+  ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}
+`}>
+  {/* Close button for mobile */}
+  <div className="flex items-center justify-between mb-4 lg:hidden">
+    <span className="font-bold berlin-type-font text-xl">SeasonShip</span>
+    <button
+      onClick={() => setSidebarOpen(false)}
+      className="p-2 text-gray-600 hover:text-gray-900"
+    >
+      <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+      </svg>
+    </button>
+  </div>
           <nav className="space-y-2">
             {menuItems.map((item) => (
               <button
@@ -921,7 +958,7 @@ const getActiveSection = () => {
         </aside>
 
         {/* Main Content */}
-        <main className="flex-1 p-6">
+        <main className="flex-1 p-3 sm:p-6 lg:ml-0">
           {children}
         </main>
       </div>

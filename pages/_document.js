@@ -4,6 +4,15 @@ export default function Document() {
   return (
     <Html lang="en">
       <Head>
+        {/* Add viewport meta tag for mobile */}
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        {/* Enhanced mobile support */}
+        <meta name="mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+        <meta name="theme-color" content="#000000" />
+
+        {/* Font styles */}
         <style>{`
           @font-face {
             font-family: 'Berlin Type';
@@ -31,6 +40,7 @@ export default function Document() {
           }
         `}</style>
 
+        {/* Favicons */}
         <link rel="icon" type="image/png" href="/favicon-96x96.png" sizes="96x96" media="(prefers-color-scheme: light)" />
         <link rel="icon" type="image/png" href="/favicon-96x96-dark.png" sizes="96x96" media="(prefers-color-scheme: dark)" />
         <link rel="shortcut icon" href="/favicon-light.ico" media="(prefers-color-scheme: light)" />
