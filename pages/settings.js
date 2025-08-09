@@ -143,72 +143,69 @@ export default function Settings() {
   }
 
   const tabs = [
-    { id: 'account', name: 'Account', icon: '👤' },
-    { id: 'notifications', name: 'Notifications', icon: '🔔' },
-    { id: 'privacy', name: 'Privacy', icon: '🔒' },
-    { id: 'security', name: 'Security', icon: '🛡️' }
+    { id: 'account', name: 'Account'},
+    { id: 'notifications', name: 'Notifications'},
+    { id: 'privacy', name: 'Privacy'},
+    { id: 'security', name: 'Security'}
   ];
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Navigation */}
-      <nav className="bg-white shadow-lg">
-        <div className="max-w-7xl mx-auto px-4">
-          <div className="flex justify-between h-16">
-            <div className="flex items-center">
-              <Link href="/" className="text-xl font-bold text-gray-800">
-                🚚 Cargo Hitching
-              </Link>
-            </div>
-            <div className="flex items-center space-x-4">
-              <Link href="/dashboard" className="text-gray-600 hover:text-gray-900">
-                Dashboard
-              </Link>
-              <Link href="/profile" className="text-gray-600 hover:text-gray-900">
-                Profile
-              </Link>
-              <button
-                onClick={handleLogout}
-                className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
-              >
-                Logout
-              </button>
-            </div>
-          </div>
-        </div>
-      </nav>
-
-      <div className="max-w-6xl mx-auto px-4 py-8">
-        <div className="bg-white rounded-lg shadow-md overflow-hidden">
+    <div className="min-h-screen">
+      <div className="w-full">
           {/* Header */}
-          <div className="bg-gradient-to-r from-blue-600 to-purple-700 px-6 py-4">
-            <h1 className="text-2xl font-bold text-white">Account Settings</h1>
-            <p className="text-blue-100">Manage your account preferences and security settings</p>
-          </div>
-
-          <div className="flex">
-            {/* Sidebar */}
-            <div className="w-64 bg-gray-50 border-r border-gray-200">
-              <nav className="p-4 space-y-1">
-                {tabs.map((tab) => (
-                  <button
-                    key={tab.id}
-                    onClick={() => setActiveTab(tab.id)}
-                    className={`w-full flex items-center px-3 py-2 text-left rounded-md transition-colors ${
-                      activeTab === tab.id
-                        ? 'bg-blue-100 text-blue-700 font-medium'
-                        : 'text-gray-600 hover:bg-gray-100'
-                    }`}
-                  >
-                    <span className="mr-3">{tab.icon}</span>
-                    {tab.name}
-                  </button>
-                ))}
-              </nav>
+            <div className="flex justify-between items-start mb-6">
+              <div>
+                <h1 className="text-3xl font-bold text-gray-900 mb-2">Settings</h1>
+                <p className="text-gray-600">Manage your account preferences and platform settings.</p>
+              </div>
+              <div className="flex gap-3">
+                <button className="inline-flex items-center px-4 py-2.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 hover:bg-gray-50 transition-colors rounded-lg">
+                  <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                  </svg>
+                  Reset to Defaults
+                </button>
+                <button className="inline-flex items-center px-4 py-2.5 text-sm font-medium text-white bg-black hover:bg-gray-800 transition-colors rounded-lg">
+                  <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" />
+                  </svg>
+                  Save Changes
+                </button>
+              </div>
             </div>
 
-            {/* Content */}
-            <div className="flex-1 p-6">
+          {/* Cards Container with Spacing */}
+          <div className="space-y-6">
+          {/* Filter Tabs Card */}
+            <div className="rounded-lg border bg-card text-card-foreground bg-white border-gray-200">
+              <div>
+                <nav className="flex space-x-8 px-6" aria-label="Tabs">
+                  {tabs.map((tab) => (
+                    <button
+                      key={tab.id}
+                      onClick={() => setActiveTab(tab.id)}
+                      className={`py-4 px-1 border-b-2 font-medium text-sm ${
+                        activeTab === tab.id
+                          ? 'border-blue-500 text-blue-600'
+                          : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                      }`}
+                    >
+                      {tab.name}
+                    </button>
+                  ))}
+                </nav>
+              </div>
+            </div>
+
+            {/* Settings Content Card */}
+            <div className="rounded-lg border bg-card text-card-foreground bg-white border-gray-200">
+              <div className="flex items-center justify-between p-6 pb-4">
+                <h3 className="text-2xl font-semibold leading-none tracking-tight">
+                  {tabs.find(tab => tab.id === activeTab)?.name} Settings
+                </h3>
+              </div>
+
+              <div className="p-6 pt-0">
               {error && (
                 <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded mb-6">
                   {error}
