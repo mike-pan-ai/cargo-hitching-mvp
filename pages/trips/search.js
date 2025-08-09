@@ -162,6 +162,29 @@ export default function SearchTrips() {
   });
   const router = useRouter();
 
+  const loadAllTrips = async () => {
+  setLoading(true);
+  setError('');
+
+  try {
+    // Get all trips without any filters
+    const response = await authenticatedFetch(`${API_BASE_URL}/api/trips/search`);
+    const data = await response.json();
+
+    if (response.ok) {
+      let allTrips = data || [];
+      setTrips(allTrips);
+    } else {
+      setError(data.error || 'Failed to load trips');
+    }
+  } catch (err) {
+    console.error('Load trips error:', err);
+    setError('Network error. Make sure your Flask backend is running.');
+  } finally {
+    setLoading(false);
+  }
+  };
+
   // Load initial search from homepage if available
   useEffect(() => {
   const { from, to } = router.query;
@@ -171,8 +194,11 @@ export default function SearchTrips() {
       country_from: from || '',
       country_to: to || ''
     }));
-    // Only search if there are query parameters
+    // Search with the homepage parameters
     searchTrips();
+  } else {
+    // Just load all trips when browsing without specific search
+    loadAllTrips();
   }
 }, [router.query]);
 

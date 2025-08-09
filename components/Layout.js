@@ -736,7 +736,7 @@ function Sidebar({ activeSection, setActiveSection }) {
                 <path d="M3 4a1 1 0 00-1 1v1a1 1 0 001 1h1a1 1 0 001-1V5a1 1 0 00-1-1H3zM6 4a1 1 0 011-1h7a1 1 0 011 1v10a1 1 0 01-1 1H7a1 1 0 01-1-1V4z"/>
               </svg>
             </div>
-            <span className="font-semibold text-lg text-gray-900 berlin-type-font text-xl">SeasonShip</span>
+            <span className="font-semibold text-lg text-gray-900 berlin-type-font text-xl">SEASONSHIP</span>
           </div>
         </Link>
       </div>
@@ -850,7 +850,7 @@ const getActiveSection = () => {
 
   {/* Logo */}
   <Link href="/dashboard" className="flex items-center justify-center">
-    <span className="font-bold berlin-type-font text-xl sm:text-2xl">SeasonShip</span>
+    <span className="font-bold berlin-type-font text-xl sm:text-2xl">SEASONSHIP</span>
   </Link>
 
         {/* Right Side - Navigation */}
@@ -924,7 +924,7 @@ const getActiveSection = () => {
 `}>
   {/* Close button for mobile */}
   <div className="flex items-center justify-between mb-4 lg:hidden">
-    <span className="font-bold berlin-type-font text-xl">SeasonShip</span>
+    <span className="font-bold berlin-type-font text-xl">SEASONSHIP</span>
     <button
       onClick={() => setSidebarOpen(false)}
       className="p-2 text-gray-600 hover:text-gray-900"
